@@ -51,7 +51,7 @@ public class Guardian extends BaseEntity {
         this.phone = phone;
         this.name = name;
     }
-
+  
     public void updateLineUserId(String lineUserId) {
         this.lineUserId = lineUserId;
     }
