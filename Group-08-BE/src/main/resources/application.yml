@@ -1,0 +1,8 @@
+spring :
+  config :
+    import:
+      - optional:database.yml
+      - optional:logging.yml
+      - optional:application-secret.yml
+  app:
+    version: v1
