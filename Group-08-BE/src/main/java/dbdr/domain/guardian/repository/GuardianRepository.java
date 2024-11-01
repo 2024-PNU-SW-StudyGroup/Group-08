@@ -1,12 +1,10 @@
 package dbdr.domain.guardian.repository;
 
+import dbdr.domain.guardian.entity.Guardian;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import dbdr.domain.guardian.entity.Guardian;
 
 public interface GuardianRepository extends JpaRepository<Guardian, Long> {
 
