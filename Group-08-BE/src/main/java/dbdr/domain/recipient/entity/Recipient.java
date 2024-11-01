@@ -1,17 +1,21 @@
 package dbdr.domain.recipient.entity;
 
-import dbdr.domain.core.base.entity.BaseEntity;
 import dbdr.domain.careworker.entity.Careworker;
+import dbdr.domain.core.base.entity.BaseEntity;
 import dbdr.domain.recipient.dto.request.RecipientRequestDTO;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -27,22 +31,22 @@ public class Recipient extends BaseEntity {
     @Column(nullable = false)
     private LocalDate birth;
 
-    @Column(nullable = false)
+    @Column
     private String gender;
 
-    @Column(nullable = false)
+    @Column
     private String careLevel;
 
     @Column(nullable = false, unique = true)
     private String careNumber;
 
-    @Column(nullable = false)
+    @Column
     private LocalDate startDate;
 
-    @Column(nullable = false)
+    @Column
     private String institution;
 
-    @Column(nullable = false)
+    @Column
     private Long institutionNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)

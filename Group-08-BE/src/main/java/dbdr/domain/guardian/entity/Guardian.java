@@ -1,19 +1,21 @@
 package dbdr.domain.guardian.entity;
 
-import java.time.LocalTime;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
-
 import dbdr.domain.core.base.entity.BaseEntity;
+import dbdr.domain.recipient.entity.Recipient;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
+import java.time.LocalTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
@@ -39,6 +41,10 @@ public class Guardian extends BaseEntity {
 
     @Column(nullable = true)
     private LocalTime alertTime;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipient_id")
+    private Recipient recipient;
 
     @Builder
     public Guardian(String phone, String name) {

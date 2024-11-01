@@ -1,19 +1,17 @@
 package dbdr.domain.recipient.service;
 
-import dbdr.domain.recipient.entity.Recipient;
+import dbdr.domain.careworker.repository.CareworkerRepository;
 import dbdr.domain.recipient.dto.request.RecipientRequestDTO;
 import dbdr.domain.recipient.dto.response.RecipientResponseDTO;
+import dbdr.domain.recipient.entity.Recipient;
 import dbdr.domain.recipient.repository.RecipientRepository;
-import dbdr.domain.careworker.repository.CareworkerRepository;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +35,7 @@ public class RecipientService {
 
     @Transactional
     public RecipientResponseDTO createRecipient(RecipientRequestDTO recipientRequestDTO) {
-        careNumberExists(recipientRequestDTO.getCareNumber());
+        ensureUniqueCareNumber(recipientRequestDTO.getCareNumber());
         Recipient recipient = new Recipient(
             recipientRequestDTO.getName(),
             recipientRequestDTO.getBirth(),
@@ -56,7 +54,7 @@ public class RecipientService {
 
     @Transactional
     public RecipientResponseDTO updateRecipient(Long id, RecipientRequestDTO recipientRequestDTO) {
-        careNumberExists(recipientRequestDTO.getCareNumber());
+        ensureUniqueCareNumber(recipientRequestDTO.getCareNumber());
 
         Recipient recipient = findRecipientById(id);
 
@@ -78,7 +76,7 @@ public class RecipientService {
             .orElseThrow(() -> new ApplicationException(ApplicationError.RECIPIENT_NOT_FOUND));
     }
 
-    private void careNumberExists(String careNumber) {
+    private void ensureUniqueCareNumber(String careNumber) {
         if (recipientRepository.existsByCareNumber(careNumber)) {
             throw new ApplicationException(ApplicationError.DUPLICATE_CARE_NUMBER);
         }

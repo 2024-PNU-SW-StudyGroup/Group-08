@@ -3,6 +3,7 @@ package dbdr.domain.chart.entity;
 
 import dbdr.domain.core.base.entity.BaseEntity;
 import dbdr.domain.recipient.entity.Recipient;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,34 +19,34 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "chart")
+@Table(name = "charts")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@SQLDelete(sql = "UPDATE chart SET is_active = false WHERE id = ?")
+@SQLDelete(sql = "UPDATE charts SET is_active = false WHERE id = ?")
 @SQLRestriction("is_active = true")
 public class Chart extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id", nullable = false)
     private Recipient recipient;
 
-    @Column(nullable = false, length = 500)
+    @Column(name = "condition_disease", nullable = false, length = 500)
     private String conditionDisease;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "body_management_id")
     private BodyManagement bodyManagement;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "nursing_management_id")
     private NursingManagement nursingManagement;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "recovery_training_id")
     private RecoveryTraining recoveryTraining;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cognitive_management_id")
     private CognitiveManagement cognitiveManagement;
 

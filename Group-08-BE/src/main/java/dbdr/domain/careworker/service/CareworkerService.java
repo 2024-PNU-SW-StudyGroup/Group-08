@@ -1,18 +1,16 @@
 package dbdr.domain.careworker.service;
 
-import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
 import dbdr.domain.careworker.dto.response.CareworkerResponseDTO;
+import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.careworker.repository.CareworkerRepository;
 import dbdr.global.exception.ApplicationError;
 import dbdr.global.exception.ApplicationException;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +38,8 @@ public class CareworkerService {
 
     @Transactional
     public CareworkerResponseDTO createCareworker(CareworkerRequestDTO careworkerRequestDTO) {
-        emailExists(careworkerRequestDTO.getEmail());
+        ensureUniqueEmail(careworkerRequestDTO.getEmail());
+        ensureUniquePhone(careworkerRequestDTO.getPhone());
 
         Careworker careworker = new Careworker(careworkerRequestDTO.getInstitutionId(),
             careworkerRequestDTO.getName(), careworkerRequestDTO.getEmail(),
@@ -52,7 +51,8 @@ public class CareworkerService {
     @Transactional
     public CareworkerResponseDTO updateCareworker(Long id,
         CareworkerRequestDTO careworkerRequestDTO) {
-        emailExists(careworkerRequestDTO.getEmail());
+        ensureUniqueEmail(careworkerRequestDTO.getEmail());
+        ensureUniquePhone(careworkerRequestDTO.getPhone());
 
         Careworker careworker = findCareworkerById(id);
 
@@ -75,9 +75,15 @@ public class CareworkerService {
 
     }
 
-    private void emailExists(String email) {
+    private void ensureUniqueEmail(String email) {
         if (careworkerRepository.existsByEmail(email)) {
             throw new ApplicationException(ApplicationError.DUPLICATE_EMAIL);
+        }
+    }
+
+    private void ensureUniquePhone(String phone) {
+        if (careworkerRepository.findByPhone(phone).isPresent()) {
+            throw new ApplicationException(ApplicationError.DUPLICATE_PHONE);
         }
     }
 
