@@ -8,16 +8,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CareworkerRepository extends JpaRepository<Careworker, Long> {
 
-    List<Careworker> findByInstitutionId(Long institutionId);
+
+    List<Careworker> findAllByInstitutionId(Long institutionId);
 
     Optional<Careworker> findByLineUserId(String userId);
 
     List<Careworker> findByAlertTime(LocalTime currentTime);
 
-	Optional<Careworker> findByPhone(String phoneNumber);
+    Optional<Careworker> findByPhone(String phoneNumber);
 
     boolean existsByEmail(String email);
 
     boolean existsByPhone(String phone);
-}
 
+	boolean existsByPhoneAndIdNot(String phone, Long id);
+
+    boolean existsByEmailAndIdNot(String phone, Long id);
+}

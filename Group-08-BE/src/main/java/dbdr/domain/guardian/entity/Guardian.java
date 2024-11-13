@@ -1,7 +1,7 @@
 package dbdr.domain.guardian.entity;
 
 import dbdr.domain.core.base.entity.BaseEntity;
-import dbdr.domain.recipient.entity.Recipient;
+import dbdr.domain.institution.entity.Institution;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,9 +24,6 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLDelete(sql = "UPDATE guardians SET is_active = false WHERE id = ?")
 @SQLRestriction("is_active = true")
 public class Guardian extends BaseEntity {
-    @Column(unique = true)
-    private String loginId;
-
     private String loginPassword;
 
     @Column(nullable = false, unique = true)
@@ -40,22 +37,30 @@ public class Guardian extends BaseEntity {
     private String lineUserId;
 
     @Column(nullable = true)
-    private LocalTime alertTime;
+    private LocalTime alertTime = LocalTime.of(9, 0); // 오전 9시로 초기화
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_id")
-    private Recipient recipient;
+    @JoinColumn(name = "institution_id")
+    private Institution institution;
 
     @Builder
-    public Guardian(String phone, String name) {
+    public Guardian(String loginPassword, String phone, String name, Institution institution) {
         this.phone = phone;
         this.name = name;
-        this.alertTime = LocalTime.of(9, 0); // 오전 9시로 초기화
+        this.institution = institution;
+        this.loginPassword = loginPassword;
+        this.alertTime = LocalTime.of(18, 0); // 오후 6시로 초기화
     }
 
     public void updateGuardian(String phone, String name) {
         this.phone = phone;
         this.name = name;
+    }
+
+    public void updateAlertTime(String name, String phone, LocalTime alertTime) {
+        this.phone = phone;
+        this.name = name;
+        this.alertTime = alertTime;
     }
 
     public void updateLineUserId(String lineUserId) {
