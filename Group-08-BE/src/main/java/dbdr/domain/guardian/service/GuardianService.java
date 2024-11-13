@@ -1,14 +1,13 @@
 package dbdr.domain.guardian.service;
 
-import dbdr.domain.guardian.entity.Guardian;
 import dbdr.domain.guardian.dto.request.GuardianRequest;
 import dbdr.domain.guardian.dto.response.GuardianResponse;
+import dbdr.domain.guardian.entity.Guardian;
 import dbdr.domain.guardian.repository.GuardianRepository;
-import dbdr.exception.ApplicationError;
-import dbdr.exception.ApplicationException;
-import lombok.RequiredArgsConstructor;
-
+import dbdr.global.exception.ApplicationError;
+import dbdr.global.exception.ApplicationException;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,7 +23,7 @@ public class GuardianService {
 
     public GuardianResponse updateGuardianById(Long guardianId,
         GuardianRequest guardianRequest) {
-        phoneNumberExists(guardianRequest.phone());
+        ensureUniquePhone(guardianRequest.phone());
 
         Guardian guardian = findGuardianById(guardianId);
         guardian.updateGuardian(guardianRequest.phone(), guardianRequest.name());
@@ -42,7 +41,7 @@ public class GuardianService {
     }
 
     public GuardianResponse addGuardian(GuardianRequest guardianRequest) {
-        phoneNumberExists(guardianRequest.phone());
+        ensureUniquePhone(guardianRequest.phone());
         Guardian guardian = new Guardian(guardianRequest.phone(), guardianRequest.name());
         guardian = guardianRepository.save(guardian);
         return new GuardianResponse(guardian.getPhone(), guardian.getName(), guardian.isActive());
@@ -59,9 +58,19 @@ public class GuardianService {
             .orElseThrow(() -> new ApplicationException(ApplicationError.GUARDIAN_NOT_FOUND));
     }
 
-    private void phoneNumberExists(String phone) {
+    private void ensureUniquePhone(String phone) {
         if (guardianRepository.existsByPhone(phone)) {
             throw new ApplicationException(ApplicationError.DUPLICATE_PHONE);
         }
+    }
+
+    public Guardian findByLineUserId(String userId) {
+        return guardianRepository.findByLineUserId(userId)
+            .orElse(null);
+    }
+
+    public Guardian findByPhone(String phone) {
+        return guardianRepository.findByPhone(phone)
+            .orElse(null);
     }
 }
