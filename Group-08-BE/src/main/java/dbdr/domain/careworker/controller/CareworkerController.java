@@ -1,73 +1,56 @@
 package dbdr.domain.careworker.controller;
 
-import dbdr.domain.careworker.dto.request.CareworkerRequestDTO;
-import dbdr.domain.careworker.dto.response.CareworkerResponseDTO;
+import dbdr.domain.careworker.dto.request.CareworkerUpdateRequest;
+import dbdr.domain.careworker.dto.response.CareworkerMyPageResponse;
+import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.careworker.service.CareworkerService;
+import dbdr.global.util.api.ApiUtils;
+import dbdr.security.LoginCareworker;
+import dbdr.security.model.AuthParam;
+import dbdr.security.model.DbdrAuth;
+import dbdr.security.model.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "[관리자] 요양보호사 (Careworker)", description = "요양보호사 정보 조회, 수정, 삭제, 추가")
+
+@Tag(name = "[요양보호사] 마이페이지", description = "요양보호사 본인의 정보 조회 및 수정")
 @RestController
 @RequestMapping("/${spring.app.version}/careworker")
 @RequiredArgsConstructor
+@Slf4j
 public class CareworkerController {
 
     private final CareworkerService careworkerService;
 
-    @Value("${spring.app.version}")
-    private String appVersion;
-
-    @Operation(summary = "전체 요양보호사 정보를 특정 요양원아이디로 조회")
+    @Operation(summary = "요양보호사 본인의 정보 조회", security = @SecurityRequirement(name = "JWT"))
     @GetMapping
-    public ResponseEntity<List<CareworkerResponseDTO>> getAllCareworkers(
-            @RequestParam(value = "institutionId", required = false) Long institutionId) {
-        List<CareworkerResponseDTO> careworkerList;
-        if (institutionId != null) {
-            careworkerList = careworkerService.getCareworkersByInstitution(institutionId);
-        } else {
-            careworkerList = careworkerService.getAllCareworkers();
-        }
-        return ResponseEntity.ok(careworkerList);
+    @DbdrAuth(targetRole = Role.CAREWORKER,authParam = AuthParam.LOGIN_CAREWORKER)
+    public ResponseEntity<ApiUtils.ApiResult<CareworkerMyPageResponse>> showCareworkerInfo(
+            @Parameter(hidden = true) @LoginCareworker Careworker careworker) {
+        log.info("Careworker Name: {}", careworker.getName());
+        CareworkerMyPageResponse response = careworkerService.getMyPageInfo(careworker.getId());
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
-    @Operation(summary = "요양보호사 한 사람의 정보 조회")
-    @GetMapping("/{id}")
-    public ResponseEntity<CareworkerResponseDTO> getCareworkerById(
-        @PathVariable("id") Long id) {
-        CareworkerResponseDTO careworker = careworkerService.getCareworkerById(id);
-        return ResponseEntity.ok(careworker);
-    }
-
-    @Operation(summary = "요양보호사 추가")
-    @PostMapping
-    public ResponseEntity<CareworkerResponseDTO> createCareworker(
-            @Valid @RequestBody CareworkerRequestDTO careworkerDTO) {
-        CareworkerResponseDTO newCareworker = careworkerService.createCareworker(careworkerDTO);
-        return ResponseEntity.created(
-                        URI.create("/" + appVersion + "/careworker/" + newCareworker.getId()))
-                .body(newCareworker);
-    }
-
-    @Operation(summary = "요양보호사 정보 수정")
-    @PutMapping("/{id}")
-    public ResponseEntity<CareworkerResponseDTO> updateCareworker(@PathVariable("id") Long id,
-        @Valid @RequestBody CareworkerRequestDTO careworkerDTO) {
-        CareworkerResponseDTO updatedCareworker = careworkerService.updateCareworker(id,
-                careworkerDTO);
-        return ResponseEntity.ok(updatedCareworker);
-    }
-
-    @Operation(summary = "요양보호사 삭제")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCareworker(@PathVariable("id") Long id) {
-        careworkerService.deleteCareworker(id);
-        return ResponseEntity.noContent().build();
+    @Operation(summary = "요양보호사 본인의 근무일과 알림 시간 수정", security = @SecurityRequirement(name = "JWT"))
+    @PutMapping
+    @DbdrAuth(targetRole = Role.CAREWORKER,authParam = AuthParam.LOGIN_CAREWORKER)
+    public ResponseEntity<ApiUtils.ApiResult<CareworkerMyPageResponse>> updateCareworkerInfo(
+            @Parameter(hidden = true) @LoginCareworker Careworker careworker,
+            @Valid @RequestBody CareworkerUpdateRequest careworkerRequest) {
+        CareworkerMyPageResponse updatedResponse = careworkerService.updateWorkingDaysAndAlertTime(careworker.getId(),
+                careworkerRequest);
+        return ResponseEntity.ok(ApiUtils.success(updatedResponse));
     }
 }
