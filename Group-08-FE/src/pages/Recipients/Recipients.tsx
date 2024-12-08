@@ -1,111 +1,53 @@
 import styled from 'styled-components'
 import { RecipientsList } from './RecipientsList'
-import image from '@/assets/images/sample.png'
-import { Heading, TextBody } from '@/components/common/Text/TextFactory'
-import { colors } from '@/styles/colors/colors'
-import searchIcon from '@/assets/icons/search_icon.svg'
-import { useState } from 'react'
-import Back from '@/components/common/Back/Back'
-
-const recipients = [
-  {
-    picture: image,
-    name: '문정윤',
-    birthday: '991016',
-  },
-  {
-    picture: image,
-    name: '이진솔',
-    birthday: '010126',
-  },
-  {
-    picture: image,
-    name: '이지수',
-    birthday: '020430',
-  },
-  {
-    picture: image,
-    name: '박혜연',
-    birthday: '021028',
-  },
-  {
-    picture: image,
-    name: '김태윤',
-    birthday: '010626',
-  },
-  {
-    picture: image,
-    name: '이영준',
-    birthday: '970920',
-  },
-  {
-    picture: image,
-    name: '유경미',
-    birthday: '021027',
-  },
-  {
-    picture: image,
-    name: '문정윤',
-    birthday: '991016',
-  },
-  {
-    picture: image,
-    name: '이진솔',
-    birthday: '010126',
-  },
-  {
-    picture: image,
-    name: '이지수',
-    birthday: '020430',
-  },
-  {
-    picture: image,
-    name: '박혜연',
-    birthday: '021028',
-  },
-  {
-    picture: image,
-    name: '김태윤',
-    birthday: '010626',
-  },
-  {
-    picture: image,
-    name: '이영준',
-    birthday: '970920',
-  },
-  {
-    picture: image,
-    name: '유경미',
-    birthday: '021027',
-  },
-]
+import image from '@/assets/images/profile.svg'
+import { Heading } from '@/components/common/Text/TextFactory'
+import { useEffect, useState } from 'react'
+import { Recipient } from '@/api/hooks/admin/recipient/types'
+import { getRecipients } from '@/api/hooks/user/recipient/recipientApi'
 
 interface ListWrapperProps {
   isScrolled: boolean
 }
 
 export const RecipientsPage = () => {
+  const [recipients, setRecipients] = useState<Recipient[]>([])
   const [isScrolled, setIsScrolled] = useState(false)
-  const handleScroll = (event: any) => {
+  const role = localStorage.getItem('role')
+  localStorage.setItem('chartType', 'DIY')
+
+  useEffect(() => {
+    localStorage.removeItem('chartData')
+    const fetchRecipients = async () => {
+      try {
+        const data = await getRecipients(role!)
+        setRecipients(data)
+      } catch (error) {
+        console.error('Failed to fetch recipients:', error)
+      }
+    }
+    fetchRecipients()
+  }, [role])
+
+  const scroll = (event: any) => {
     const scrollTop = event.target.scrollTop
     setIsScrolled(scrollTop > 0)
   }
 
   return (
     <Wrapper>
-      <Heading.Medium style={{ width: '100%', margin: '20px 0' }}>피요양자 선택</Heading.Medium>
-      <Search>
-        <img src={searchIcon} alt="searchIcon" style={{ width: '22px' }} />
-        <InputField placeholder="이름으로 검색" />
-      </Search>
-      <ListWrapper onScroll={handleScroll} isScrolled={isScrolled}>
-        {recipients.map((recipient, index) => (
+      <Heading.Medium style={{ width: '100%', margin: '20px 0 10px 0' }}>
+        돌봄대상자를 선택해주세요.
+      </Heading.Medium>
+      <ListWrapper onScroll={scroll} isScrolled={isScrolled}>
+        {recipients.map((recipient) => (
           <RecipientsList
-            key={index}
-            picture={recipient.picture}
+            key={recipient.id}
+            recipientId={recipient.id}
+            picture={image}
             name={recipient.name}
-            birthday={recipient.birthday}
-          ></RecipientsList>
+            birthday={recipient.birth}
+          />
         ))}
       </ListWrapper>
     </Wrapper>
@@ -113,7 +55,7 @@ export const RecipientsPage = () => {
 }
 
 const Wrapper = styled.div`
-  width: 100vw;
+  width: 100%;
   height: calc(100vh - 50px);
   display: flex;
   justify-content: start;
@@ -123,36 +65,10 @@ const Wrapper = styled.div`
   box-sizing: border-box;
 `
 
-const Search = styled.div`
-  border: 1px solid ${colors.border.subtle};
-  width: 100%;
-  height: 57px;
-  background-color: rgba(217, 217, 217, 0.2);
-  border-radius: 30px;
-  box-sizing: border-box;
-  padding: 0 27px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-`
-
-const InputField = styled.input`
-  background-color: transparent;
-  border: none;
-  margin-left: 8px;
-  font-size: 20px;
-  outline: none;
-  margin-top: 2px;
-
-  &:focus::placeholder {
-    color: transparent;
-  }
-`
-
 const ListWrapper = styled.div.withConfig({
   shouldForwardProp: (prop) => !['isScrolled'].includes(prop),
 })<ListWrapperProps>`
-  width: 100vw;
+  width: 100%;
   height: calc(100vh - 200px);
   margin-top: 10px;
   display: flex;
@@ -162,7 +78,6 @@ const ListWrapper = styled.div.withConfig({
   box-sizing: border-box;
   overflow-y: auto;
   flex-grow: 1;
-  padding: 0 28px;
 
   box-shadow: ${({ isScrolled }) =>
     isScrolled ? 'inset 0 10px 10px -10px rgba(0, 0, 0, 0.2)' : 'none'};
