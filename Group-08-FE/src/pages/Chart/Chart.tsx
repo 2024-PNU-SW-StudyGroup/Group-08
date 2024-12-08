@@ -7,7 +7,7 @@ import recording from '@/assets/icons/recording.svg'
 import pencil from '@/assets/icons/pencil.svg'
 import cameraLineIcon from '@/assets/icons/camera_line.svg'
 import galleryLineIcon from '@/assets/icons/gallery_line.svg'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 interface Props {
@@ -21,22 +21,28 @@ export const ChartPage = () => {
   const [showPopup, setShowPopup] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const navigate = useNavigate()
+  localStorage.removeItem('chartType')
 
-  const handleFileSelect = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
-    }
+  const navigateToRecord = () => {
+    localStorage.setItem('chartType', 'record')
+    navigate('/chart/choice/body')
   }
 
-  const handleCamera = () => {}
-
-  const handleRecord = () => {
-    navigate('/chart/audioRecord')
+  const navigateToDIY = () => {
+    localStorage.setItem('chartType', 'DIY')
+    navigate('/chart/choice/body')
   }
 
-  const handleDIY = () => {
-    navigate('/chart/DIY')
-  }
+  useEffect(() => {
+    localStorage.removeItem('bodyManagement')
+    localStorage.removeItem('physicalNote')
+    localStorage.removeItem('cognitiveManagement')
+    localStorage.removeItem('cognitiveNote')
+    localStorage.removeItem('nursingManagement')
+    localStorage.removeItem('healthNote')
+    localStorage.removeItem('recoveryTraining')
+    localStorage.removeItem('recoveryNote')
+  })
 
   return (
     <Wrapper>
@@ -44,13 +50,12 @@ export const ChartPage = () => {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          height: '50px',
-          justifyContent: 'space-between',
+          gap: '10px',
           marginBottom: '44px',
         }}
       >
         <TextBody.Large style={{ color: colors.text.subtle }}>
-          오늘 피요양자는 상태는 어땠나요?
+          오늘 {localStorage.getItem('recipientName')}님의 상태는 어땠나요?
         </TextBody.Large>
         <Heading.Medium>간편하게 차트를 작성해 보아요!</Heading.Medium>
       </div>
@@ -63,25 +68,25 @@ export const ChartPage = () => {
         ></ChartBlock>
         <ChartBlock
           icon={recording}
-          title="음성 녹음"
+          title="음성 인식"
           sub="작성할 내용을 녹음해주세요."
-          onClick={handleRecord}
+          onClick={navigateToRecord}
         ></ChartBlock>
         <ChartBlock
           icon={pencil}
           title="직접 입력"
           sub="작성할 내용을 직접 입력해주세요."
-          onClick={handleDIY}
+          onClick={navigateToDIY}
         ></ChartBlock>
       </div>
       {showPopup && (
         <PopupOverlay onClick={() => setShowPopup(false)}>
           <PopupContent onClick={(e) => e.stopPropagation()} className="slide-up">
-            <Option>
+            <Option onClick={() => navigate('/camera')}>
               <img src={cameraLineIcon} alt="camera" />
               <Paragraph.Large>사진 촬영</Paragraph.Large>
             </Option>
-            <Option onClick={handleFileSelect}>
+            <Option onClick={() => navigate('/ocr')}>
               <img src={galleryLineIcon} alt="gallery" />
               <Paragraph.Large>갤러리에서 선택</Paragraph.Large>
               <input type="file" ref={fileInputRef} style={{ display: 'none' }} />
