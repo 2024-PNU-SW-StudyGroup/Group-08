@@ -4,10 +4,10 @@ import styled from 'styled-components'
 interface Props {
   icon: string
   title: string
-  times: number
+  content: string
 }
 
-export const ChoiceBox = ({ icon, title, times }: Props) => {
+export const ChoiceBox = ({ icon, title, content }: Props) => {
   return (
     <Box>
       <TitleBox>
@@ -17,7 +17,7 @@ export const ChoiceBox = ({ icon, title, times }: Props) => {
           <BackgroundBar />
         </TitleContainer>
       </TitleBox>
-      <PlusBox>{times}회</PlusBox>
+      <PlusBox>{content}</PlusBox>
     </Box>
   )
 }
@@ -71,6 +71,7 @@ const PlusBox = styled.div`
   justify-content: center;
   align-items: center;
   display: flex;
+  padding: 0px 5px;
   background-color: ${colors.primary.mainOpacity15};
   border-radius: 0 0 16px 16px;
   font-weight: 700;
