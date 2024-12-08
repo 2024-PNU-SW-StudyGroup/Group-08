@@ -2,7 +2,11 @@ package dbdr.domain.recipient.entity;
 
 import dbdr.domain.careworker.entity.Careworker;
 import dbdr.domain.core.base.entity.BaseEntity;
-import dbdr.domain.recipient.dto.request.RecipientRequestDTO;
+import dbdr.domain.guardian.entity.Guardian;
+import dbdr.domain.institution.entity.Institution;
+import dbdr.domain.recipient.dto.request.RecipientRequest;
+import dbdr.domain.recipient.dto.request.RecipientUpdateCareworkerRequest;
+import dbdr.domain.recipient.dto.request.RecipientUpdateInstitutionRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -38,8 +42,9 @@ public class Recipient extends BaseEntity {
     @Column
     private LocalDate startDate;
 
-    @Column
-    private String institution;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "institution_id")
+    private Institution institution;
 
     @Column
     private Long institutionNumber;
@@ -48,16 +53,22 @@ public class Recipient extends BaseEntity {
     @JoinColumn(name = "careworker_id")
     private Careworker careworker;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "guardian_id")
+    private Guardian guardian;
+
+
     @Builder
     public Recipient(String name,
-        LocalDate birth,
-        String gender,
-        String careLevel,
-        String careNumber,
-        LocalDate startDate,
-        String institution,
-        Long institutionNumber,
-        Careworker careworker) {
+                     LocalDate birth,
+                     String gender,
+                     String careLevel,
+                     String careNumber,
+                     LocalDate startDate,
+                     Institution institution,
+                     Long institutionNumber,
+                     Careworker careworker,
+                     Guardian guardian) {
         this.name = name;
         this.birth = birth;
         this.gender = gender;
@@ -67,19 +78,87 @@ public class Recipient extends BaseEntity {
         this.institution = institution;
         this.institutionNumber = institutionNumber;
         this.careworker = careworker;
+        this.guardian = guardian;
     }
 
 
-    public void updateRecipient(RecipientRequestDTO recipientDTO) {
+    public Recipient(RecipientRequest dto, Careworker careworker, Guardian guardian) {
+        this.name = dto.getName();
+        this.birth = dto.getBirth();
+        this.gender = dto.getGender();
+        this.careLevel = dto.getCareLevel();
+        this.careNumber = dto.getCareNumber();
+        this.startDate = dto.getStartDate();
+        this.institution = careworker.getInstitution();
+        this.institutionNumber = careworker.getInstitution().getInstitutionNumber();
+        this.careworker = careworker;
+        this.guardian = guardian;
+    }
+
+
+    public Recipient(RecipientRequest dto, Institution institution, Careworker careworker) {
+        this.name = dto.getName();
+        this.birth = dto.getBirth();
+        this.gender = dto.getGender();
+        this.careLevel = dto.getCareLevel();
+        this.careNumber = dto.getCareNumber();
+        this.startDate = dto.getStartDate();
+        this.institution = institution;
+        this.institutionNumber = institution.getInstitutionNumber();
+        this.careworker = careworker;
+    }
+
+    public Recipient(RecipientRequest dto, Institution institution, Careworker careworker, Guardian guardian) {
+        this.name = dto.getName();
+        this.birth = dto.getBirth();
+        this.gender = dto.getGender();
+        this.careLevel = dto.getCareLevel();
+        this.careNumber = dto.getCareNumber();
+        this.startDate = dto.getStartDate();
+        this.institution = institution;
+        this.institutionNumber = institution.getInstitutionNumber();
+        this.careworker = careworker;
+        this.guardian = guardian;
+    }
+
+
+    public void updateRecipient(RecipientRequest recipientDTO) {
         this.name = recipientDTO.getName();
         this.birth = recipientDTO.getBirth();
         this.gender = recipientDTO.getGender();
         this.careLevel = recipientDTO.getCareLevel();
         this.careNumber = recipientDTO.getCareNumber();
         this.startDate = recipientDTO.getStartDate();
-        this.institution = recipientDTO.getInstitution();
-        this.institutionNumber = recipientDTO.getInstitutionNumber();
-        //this.careworker = careworker;
     }
+
+    public void updateRecipient(RecipientUpdateCareworkerRequest recipientDTO) {
+        this.name = recipientDTO.getName();
+        this.birth = recipientDTO.getBirth();
+        this.gender = recipientDTO.getGender();
+        this.careLevel = recipientDTO.getCareLevel();
+        this.careNumber = recipientDTO.getCareNumber();
+        this.startDate = recipientDTO.getStartDate();
+    }//요양보호사용
+
+    public void updateRecipientForInstitution(RecipientUpdateInstitutionRequest recipientDTO, Careworker careworker, Guardian guardian) {
+        this.name = recipientDTO.getName();
+        this.birth = recipientDTO.getBirth();
+        this.gender = recipientDTO.getGender();
+        this.careLevel = recipientDTO.getCareLevel();
+        this.careNumber = recipientDTO.getCareNumber();
+        this.startDate = recipientDTO.getStartDate();
+        this.careworker = careworker;
+        this.guardian = guardian;
+    }//요양원용
+
+    public void updateRecipientForAdmin(RecipientRequest recipientDTO, Institution institution, Careworker careworker, Guardian guardian) {
+        this.institution = institution;
+        this.institutionNumber = recipientDTO.getInstitutionNumber();
+        this.careworker = careworker;
+        this.guardian = guardian;
+    } //관리자용
+
+
+
 
 }
